@@ -33,11 +33,17 @@ export default function Footer({ site }) {
       <div className="container-x grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="mb-3 flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-amber font-display text-lg font-bold text-forest-deep">
-              {(site?.site_name || 'N')[0]}
+            <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-full bg-cream p-0.5 shadow-md ring-2 ring-amber/50">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/logo-navbar.png" alt="Negin Khorasan logo" className="h-full w-full rounded-full object-cover" />
             </span>
-            <span className="font-display text-lg font-semibold text-cream">
-              {site?.site_name || 'Negin Khorasan'}
+            <span className="leading-tight">
+              <span className="block font-display text-lg font-semibold text-cream">
+                {site?.site_name || 'Negin Khorasan'}
+              </span>
+              <span className="block text-[10px] uppercase tracking-[0.3em] text-amber-light/70">
+                Tours & Travel
+              </span>
             </span>
           </div>
           <p className="text-sm leading-relaxed text-cream/60">
