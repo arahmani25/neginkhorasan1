@@ -1,16 +1,24 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import { PackageCard } from '@/components/cards';
 
 const PER_PAGE = 9;
 
 export default function PackageBrowser({ packages }) {
-  const params = useSearchParams();
-  const [q, setQ] = useState(params.get('q') || '');
-  const [dest, setDest] = useState(params.get('destination') || '');
+  const [q, setQ] = useState('');
+  const [dest, setDest] = useState('');
   const [page, setPage] = useState(1);
+  const [ready, setReady] = useState(false);
+
+  // Read URL params after mount — avoids useSearchParams() entirely
+  // (which requires Suspense and breaks prerendering on some Next.js versions)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setQ(params.get('q') || '');
+    setDest(params.get('destination') || '');
+    setReady(true);
+  }, []);
 
   const destinations = useMemo(
     () => [...new Set(packages.map((p) => p.location).filter(Boolean))],
@@ -32,6 +40,24 @@ export default function PackageBrowser({ packages }) {
   const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const current = Math.min(page, pages);
   const slice = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+
+  if (!ready) {
+    return (
+      <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+        {packages.slice(0, 9).map((p) => (
+          <div key={p.id} className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-forest/5">
+            <div className="h-60 animate-pulse bg-forest-mist" />
+            <div className="space-y-3 p-6">
+              <div className="h-3 w-24 animate-pulse rounded bg-sand" />
+              <div className="h-5 w-3/4 animate-pulse rounded bg-forest-mist" />
+              <div className="h-3 w-full animate-pulse rounded bg-sand" />
+              <div className="h-3 w-2/3 animate-pulse rounded bg-sand" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>

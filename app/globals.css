@@ -8,6 +8,14 @@ body { @apply bg-cream text-ink font-sans antialiased; }
 
 ::selection { @apply bg-amber text-forest-deep; }
 
+/* Destination ticker marquee */
+.marquee { animation: marquee 30s linear infinite; }
+.marquee:hover { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* Thin elegant scrollbar */
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { @apply bg-sand; }

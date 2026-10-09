@@ -23,7 +23,7 @@ export default async function AboutPage() {
           <div className="grid overflow-hidden rounded-[2rem] bg-white shadow-[0_20px_50px_rgba(12,43,41,0.12)] ring-1 ring-forest/5 lg:grid-cols-2">
             <div
               className="min-h-[340px] bg-cover bg-center"
-              style={{ backgroundImage: "url('https://picsum.photos/seed/ae-about/900/800')" }}
+              style={{ backgroundImage: "url('/images/about.jpg')" }}
             />
             <div className="p-8 md:p-12">
               <p className="eyebrow">Our Story</p>
@@ -59,13 +59,11 @@ export default async function AboutPage() {
           <div className="mx-auto grid max-w-4xl gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((m) => (
               <div key={m.id} className="card p-7 text-center">
-                <div className="mx-auto h-24 w-24 overflow-hidden rounded-full bg-forest-mist ring-4 ring-white shadow-md">
+                <div className="mx-auto grid h-24 w-24 place-items-center overflow-hidden rounded-full bg-forest font-display text-2xl font-bold text-amber ring-4 ring-white shadow-md">
                   {m.photo_path ? (
                     <img src={m.photo_path} alt={m.name} className="h-full w-full object-cover" loading="lazy" />
                   ) : (
-                    <div className="grid h-full w-full place-items-center font-display text-2xl font-bold text-forest">
-                      {m.name?.[0]}
-                    </div>
+                    m.name?.split(' ').map((w) => w[0]).slice(0, 2).join('')
                   )}
                 </div>
                 <h3 className="mt-4 font-display text-lg font-semibold text-forest">{m.name}</h3>

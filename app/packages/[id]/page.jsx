@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BookingForm from '@/components/BookingForm';
-import { getPackage, getPackages, utils } from '@/lib/data';
+import { getPackage, getPackages } from '@/lib/data';
 
 export const revalidate = 60;
-export const dynamicParams = true;
 
 export async function generateMetadata({ params }) {
   const p = await getPackage(params.id);
-  return { title: p ? p.name : 'Package' };
+  return { title: p ? p.name : 'Journey' };
 }
 
 export default async function PackageDetail({ params }) {
@@ -21,31 +20,22 @@ export default async function PackageDetail({ params }) {
   return (
     <>
       {/* Hero */}
-      <section className="relative h-[52vh] min-h-[380px] overflow-hidden bg-forest-deep">
+      <section className="relative h-[58vh] min-h-[420px] overflow-hidden bg-forest-deep">
         <img
-          src={pkg.image_path || 'https://picsum.photos/seed/ae-fallback/1600/900'}
+          src={pkg.image_path || '/images/gal-1.jpg'}
           alt={pkg.name}
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/30 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/25 to-black/25" />
         <div className="container-x absolute inset-x-0 bottom-0 pb-12">
-          <Link href="/packages" className="text-sm text-cream/70 hover:text-amber-light">
-            ← All packages
+          <Link href="/packages" className="text-sm text-cream/70 transition hover:text-amber-light">
+            ← All journeys
           </Link>
-          <div className="mt-3 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="eyebrow !text-amber-light">{pkg.type === 'scholarship' ? 'Scholarship Program' : 'Tour Package'}</p>
-              <h1 className="mt-2 font-display text-4xl font-semibold text-cream md:text-5xl">{pkg.name}</h1>
-              <p className="mt-2 capitalize text-cream/75">
-                {pkg.location || 'Afghanistan'}
-              </p>
-            </div>
-            <div className="rounded-2xl bg-amber px-6 py-4 text-forest-deep shadow-xl">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em]">From</p>
-              <p className="font-display text-3xl font-bold">{utils.money(pkg.price)}</p>
-              <p className="text-xs font-medium opacity-70">per person</p>
-            </div>
-          </div>
+          <p className="eyebrow mt-4 !text-amber-light">Signature Journey</p>
+          <h1 className="mt-2 max-w-3xl font-display text-4xl font-semibold text-cream md:text-6xl">
+            {pkg.name}
+          </h1>
+          <p className="mt-3 capitalize text-cream/75">{pkg.location || 'Afghanistan'}</p>
         </div>
       </section>
 
@@ -82,7 +72,6 @@ export default async function PackageDetail({ params }) {
                         <h3 className="mt-1 font-display font-semibold text-forest group-hover:text-forest-soft">
                           {p.name}
                         </h3>
-                        <p className="text-sm font-bold text-forest">{utils.money(p.price)}</p>
                       </div>
                     </Link>
                   ))}

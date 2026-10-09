@@ -1,0 +1,14 @@
+# Never execute PHP in upload/media folders
+<FilesMatch "\.(php|phtml|phar|php\d?)$">
+  Require all denied
+</FilesMatch>
+
+# Apache 2.2 fallback
+<IfModule !mod_authz_core.c>
+  <FilesMatch "\.(php|phtml|phar|php\d?)$">
+    Order deny,allow
+    Deny from all
+  </FilesMatch>
+</IfModule>
+
+Options -Indexes

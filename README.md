@@ -5,9 +5,10 @@ A modern, dynamic travel agency website built with **Next.js 14** + **Supabase**
 ## Features
 
 **Public site**
-- Full-screen Ken Burns hero slideshow with rotating Afghan landscapes
-- Packages with live search, destination filter and pagination
-- Package detail pages with a working booking form (price × people auto-calc)
+- Full-screen Ken Burns hero slideshow with **real photos of Afghanistan** (bundled locally in `/public/images` — Band-e-Amir, Bamyan, Herat Citadel, the Blue Mosque of Mazar, Kabul)
+- Scrolling destination ticker, stats band, and an award-style modern layout
+- Packages with live search, destination filter and pagination — **no prices**, guests simply request a booking
+- Booking requests are saved to the database **and** open the visitor's email app pre-addressed to **afghanechoes@gmail.com** with all details filled in
 - Gallery with masonry layout, lightbox, videos, pagination
 - Blog & News with article pages, reading time, prev/next navigation
 - About, Services, Contact (form saves to DB), newsletter signup

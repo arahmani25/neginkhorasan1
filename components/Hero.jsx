@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-const DURATION = 6500;
+const DURATION = 7000;
 
 export default function Hero({ slides }) {
   const [idx, setIdx] = useState(0);
-  const [tick, setTick] = useState(0); // re-triggers text animation
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -18,14 +18,15 @@ export default function Hero({ slides }) {
   }, [slides.length]);
 
   const s = slides[idx];
+  const num = String(idx + 1).padStart(2, '0');
+  const count = String(slides.length).padStart(2, '0');
 
   return (
-    <section className="relative flex min-h-[92vh] items-end overflow-hidden bg-forest-deep">
-      {/* Slides */}
+    <section className="relative flex min-h-[94vh] items-end overflow-hidden bg-forest-deep">
       {slides.map((sl, i) => (
         <div
           key={i}
-          className={`absolute inset-0 transition-opacity duration-[1400ms] ease-out ${
+          className={`absolute inset-0 transition-opacity duration-[1600ms] ease-out ${
             i === idx ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -36,15 +37,15 @@ export default function Hero({ slides }) {
           />
         </div>
       ))}
-      <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/35 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-t from-forest-deep via-forest-deep/25 to-black/25" />
+      <div className="absolute inset-0 bg-gradient-to-r from-forest-deep/50 to-transparent" />
 
-      {/* Content */}
-      <div className="container-x relative z-10 pb-28 pt-44" key={tick}>
+      <div className="container-x relative z-10 pb-32 pt-44" key={tick}>
         <p className="eyebrow animate-rise !text-amber-light" style={{ animationDelay: '.05s' }}>
           {s.eyebrow}
         </p>
         <h1
-          className="mt-4 max-w-3xl animate-rise font-display text-[clamp(2.4rem,6vw,4.6rem)] font-semibold leading-[1.06] text-cream"
+          className="mt-4 max-w-4xl animate-rise font-display text-[clamp(2.6rem,6.5vw,5.2rem)] font-semibold leading-[1.04] text-cream"
           style={{ animationDelay: '.15s' }}
         >
           {s.title}
@@ -55,13 +56,20 @@ export default function Hero({ slides }) {
         >
           {s.sub}
         </p>
-        <div className="mt-8 flex animate-rise flex-wrap gap-3" style={{ animationDelay: '.35s' }}>
-          <Link href="/packages" className="btn-amber">Explore Packages</Link>
+        <div className="mt-9 flex animate-rise flex-wrap gap-3" style={{ animationDelay: '.35s' }}>
+          <Link href="/packages" className="btn-amber">Explore Journeys</Link>
           <Link href="/contact" className="btn-ghost">Plan a Custom Trip</Link>
         </div>
       </div>
 
-      {/* Dots with progress */}
+      {/* Slide counter */}
+      <div className="absolute bottom-10 left-8 z-10 hidden animate-fadein font-display text-cream/70 md:block">
+        <span className="text-3xl font-semibold text-amber">{num}</span>
+        <span className="mx-1 text-lg">/</span>
+        <span className="text-lg">{count}</span>
+      </div>
+
+      {/* Dots */}
       <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2.5">
         {slides.map((_, i) => (
           <button
@@ -69,13 +77,12 @@ export default function Hero({ slides }) {
             onClick={() => { setIdx(i); setTick((k) => k + 1); }}
             aria-label={`Slide ${i + 1}`}
             className={`h-1.5 rounded-full transition-all duration-500 ${
-              i === idx ? 'w-10 bg-amber' : 'w-4 bg-cream/40 hover:bg-cream/70'
+              i === idx ? 'w-12 bg-amber' : 'w-5 bg-cream/40 hover:bg-cream/70'
             }`}
           />
         ))}
       </div>
 
-      {/* Scroll cue */}
       <div className="absolute bottom-9 right-8 z-10 hidden animate-fadein text-cream/60 md:block">
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em]">
           Scroll

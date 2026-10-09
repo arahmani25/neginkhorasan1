@@ -13,8 +13,6 @@ const RESOURCES = {
     nameField: 'name',
     fields: [
       { name: 'name', label: 'Name', type: 'text', required: true },
-      { name: 'type', label: 'Type', type: 'select', options: ['tour', 'scholarship'] },
-      { name: 'price', label: 'Price (USD / person)', type: 'number' },
       { name: 'location', label: 'Location', type: 'text' },
       { name: 'description', label: 'Short description', type: 'textarea' },
       { name: 'content', label: 'Full content (HTML allowed)', type: 'textarea', rows: 6 },
