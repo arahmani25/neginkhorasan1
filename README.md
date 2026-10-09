@@ -61,4 +61,4 @@ The site runs in **demo mode** out of the box: it shows seed content from your o
 
 - Pages revalidate every 60 seconds (`export const revalidate = 60`), so admin edits appear on the site automatically.
 - Security: anyone can read content and submit forms, but only your authenticated admin account can edit content (enforced by Row Level Security in the database).
-- Replace the placeholder picsum.photos images with real photos via the admin panel's upload button.
+- Real photos of Afghanistan are bundled in `public/images`. To add more, either drop new `.jpg` files in that folder (reference them as `/images/your-file.jpg`) or upload them in the admin panel — the storage bucket serves them automatically.
