@@ -39,10 +39,12 @@ export default function Navbar({ site }) {
     >
       <div className="container-x flex h-[72px] items-center justify-between">
         <Link href="/" className="group flex items-center gap-3">
-          <span className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-cream p-0.5 shadow-md ring-2 ring-amber/60 transition-transform group-hover:rotate-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-navbar.png" alt="Negin Khorasan logo" className="h-full w-full rounded-full object-cover" />
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo-navbar.png"
+            alt="Negin Khorasan logo"
+            className="h-14 w-14 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-110"
+          />
           <span className="leading-tight">
             <span className="block font-display text-lg font-semibold tracking-wide text-cream">
               {site?.site_name || 'Negin Khorasan'}
