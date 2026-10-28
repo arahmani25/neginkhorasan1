@@ -2,10 +2,13 @@ import './globals.css';
 import { Fraunces, Outfit } from 'next/font/google';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import WhatsApp from '@/components/WhatsApp';
 import { getSite } from '@/lib/data';
 
 const display = Fraunces({ subsets: ['latin'], variable: '--font-display' });
 const sans = Outfit({ subsets: ['latin'], variable: '--font-sans' });
+
+export const revalidate = 60;
 
 export const metadata = {
   title: {
@@ -13,7 +16,7 @@ export const metadata = {
     template: '%s | Negin Khorasan'
   },
   description:
-    'Responsible, immersive tours and scholarship programs across Afghanistan. Explore the soul of the land.'
+    'Locally led journeys through Afghanistan. Discover turquoise lakes, ancient cities, and the stories of the Silk Road with Negin Khorasan.'
 };
 
 export default async function RootLayout({ children }) {
@@ -21,9 +24,11 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body>
+        <a href="#main-content" className="skip-link">Skip to content</a>
         <Navbar site={site} />
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
         <Footer site={site} />
+        <WhatsApp number={site.whatsapp_number} />
       </body>
     </html>
   );

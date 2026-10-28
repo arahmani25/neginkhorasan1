@@ -14,7 +14,7 @@ export default async function AboutPage() {
     <>
       <PageHero
         eyebrow="Who we are"
-        title="About Afghan Echoes"
+        title="Local roots. Open horizons."
         sub="We craft responsible, immersive journeys across Afghanistan — led by local experts."
       />
 

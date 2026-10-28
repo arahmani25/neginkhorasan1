@@ -8,7 +8,7 @@ export default async function NewsPage() {
   const news = await getNews();
   return (
     <>
-      <PageHero eyebrow="Updates" title="News" sub="Updates and announcements from Afghan Echoes." />
+      <PageHero eyebrow="Updates" title="The latest chapter." sub="Updates and announcements from Afghan Echoes." />
       <section className="py-16">
         <div className="container-x">
           {news.length ? (

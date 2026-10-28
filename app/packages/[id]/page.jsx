@@ -1,20 +1,23 @@
+import { cleanHtml } from '@/lib/html';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import BookingForm from '@/components/BookingForm';
-import { getPackage, getPackages } from '@/lib/data';
+import { getPackage, getPackages, getSite } from '@/lib/data';
 
 export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
-  const p = await getPackage(params.id);
+  const {id} = await params;
+  const p = await getPackage(id);
   return { title: p ? p.name : 'Journey' };
 }
 
 export default async function PackageDetail({ params }) {
-  const pkg = await getPackage(params.id);
+  const {id} = await params;
+  const pkg = await getPackage(id);
   if (!pkg) notFound();
 
-  const all = await getPackages();
+  const [all, site] = await Promise.all([getPackages(), getSite()]);
   const related = all.filter((p) => p.id !== pkg.id).slice(0, 3);
 
   return (
@@ -46,7 +49,7 @@ export default async function PackageDetail({ params }) {
             {pkg.content && (
               <div
                 className="prose-article mt-6"
-                dangerouslySetInnerHTML={{ __html: pkg.content }}
+                dangerouslySetInnerHTML={{ __html: cleanHtml(pkg.content) }}
               />
             )}
             {related.length > 0 && (
@@ -80,7 +83,7 @@ export default async function PackageDetail({ params }) {
             )}
           </div>
           <div className="lg:sticky lg:top-24">
-            <BookingForm pkg={pkg} />
+            <BookingForm pkg={pkg} email={site.email} whatsappNumber={site.whatsapp_number} />
           </div>
         </div>
       </section>

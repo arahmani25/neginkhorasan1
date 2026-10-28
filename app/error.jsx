@@ -1,0 +1,2 @@
+'use client';
+export default function ErrorPage({reset}) {return <section className="container-x py-24 text-center"><p className="eyebrow">A SMALL DETOUR</p><h1 className="mt-5 text-4xl tracking-tight text-forest">We could not load this page.</h1><p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-ink/65">Please try again in a moment. You can also contact our team directly if you need help planning your trip.</p><button onClick={reset} className="btn-forest mt-7">Try again</button></section>;}

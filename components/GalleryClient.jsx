@@ -1,132 +1,79 @@
 'use client';
 
-import { useState } from 'react';
-import { utils } from '@/lib/data';
+import { useEffect, useRef, useState } from 'react';
+import { videoSource } from '@/lib/media';
+import { Arrow } from './Icons';
 
 const PER_PAGE = 9;
+const FALLBACK_POSTER = '/images/hero-lake.jpg';
+
+function FilmCard({ film, onPlay }) {
+  const [posterFailed, setPosterFailed] = useState(false);
+  const video = videoSource(film.video_url);
+  const poster = posterFailed ? FALLBACK_POSTER : film.image_path || video?.thumbnail || FALLBACK_POSTER;
+  const content = <>
+    <div className="film-poster"><img src={poster} alt="" loading="lazy" onError={posterFailed ? undefined : () => setPosterFailed(true)} /><span className="film-play" aria-hidden="true">▶</span><span className="film-badge">{video?.kind === 'external' ? 'WATCH FILM' : 'PLAY FILM'}</span></div>
+    <div className="film-copy"><span>THROUGH OUR LENS</span><h3>{film.caption || 'A moment from the road'}</h3><p>{video?.kind === 'external' ? 'Open the film on its video site' : 'A little closer to being here'} <Arrow /></p></div>
+  </>;
+  if (video?.kind === 'external') return <a className="film-card" href={video.src} target="_blank" rel="noopener noreferrer">{content}</a>;
+  return <button className="film-card" onClick={() => onPlay(film)} aria-label={`Play ${film.caption || 'travel film'}`}>{content}</button>;
+}
 
 export default function GalleryClient({ gallery }) {
-  const images = gallery.filter((g) => g.media_type === 'image' || (!g.video_url && g.image_path));
-  const videos = gallery.filter((g) => g.media_type === 'video' || g.video_url);
+  const images = gallery.filter(item => item.media_type !== 'video' && !item.video_url && item.image_path);
+  const videos = gallery.filter(item => item.video_url && videoSource(item.video_url));
   const [page, setPage] = useState(1);
-  const [lightbox, setLightbox] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [playbackError, setPlaybackError] = useState(false);
+  const closeRef = useRef(null);
+  const dialogRef = useRef(null);
+
+  useEffect(() => {
+    if (!preview) return;
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeRef.current?.focus();
+    const keydown = event => {
+      if (event.key === 'Escape') setPreview(null);
+      if (event.key !== 'Tab') return;
+      const focusable = [...dialogRef.current.querySelectorAll('button,a[href],video[controls],iframe')];
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialogRef.current.contains(document.activeElement))) { event.preventDefault(); last?.focus(); }
+      if (!event.shiftKey && (document.activeElement === last || !dialogRef.current.contains(document.activeElement))) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => { document.body.style.overflow = overflow; document.removeEventListener('keydown', keydown); previous?.focus(); };
+  }, [preview]);
 
   const pages = Math.max(1, Math.ceil(images.length / PER_PAGE));
   const current = Math.min(page, pages);
   const slice = images.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+  const video = preview?.media_type === 'video' ? videoSource(preview.video_url) : null;
 
-  return (
-    <>
-      {/* Images */}
-      <section className="py-16">
-        <div className="container-x">
-          <h2 className="mb-8 font-display text-2xl font-semibold text-forest">Explore the moments</h2>
-          {slice.length ? (
-            <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
-              {slice.map((g) => (
-                <button
-                  key={g.id}
-                  onClick={() => setLightbox(g)}
-                  className="group relative block w-full overflow-hidden rounded-2xl break-inside-avoid shadow-md"
-                >
-                  <img
-                    src={g.image_path}
-                    alt={g.caption || 'Gallery image'}
-                    className="w-full transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  {g.caption && (
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/80 to-transparent px-4 pb-3 pt-10 text-left text-sm font-medium text-cream">
-                      {g.caption}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="rounded-2xl bg-sand/60 py-12 text-center text-ink/60">No images yet.</p>
-          )}
+  return <>
+    <section className="py-16"><div className="container-x">
+      <p className="eyebrow">The places. The people. The feeling.</p>
+      <h2 className="gallery-section-title">Explore the moments.</h2>
+      {slice.length ? <div className="columns-1 gap-5 sm:columns-2 lg:columns-3 [&>*]:mb-5">{slice.map(item => <button key={item.id} onClick={() => setPreview(item)} className="group relative block w-full overflow-hidden rounded-2xl break-inside-avoid shadow-md" aria-label={item.caption || 'Open gallery image'}>
+        <img src={item.image_path} alt={item.caption || 'Afghanistan travel photograph'} className="w-full transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+        {item.caption && <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/90 to-transparent px-5 pb-5 pt-14 text-left text-base font-medium text-cream">{item.caption}</span>}
+      </button>)}</div> : <p className="empty-note">New photographs are on the way.</p>}
+      {pages > 1 && <nav className="mt-10 flex flex-wrap justify-center gap-3" aria-label="Gallery pages">{Array.from({ length: pages }, (_, index) => index + 1).map(number => <button key={number} onClick={() => setPage(number)} aria-current={number === current ? 'page' : undefined} aria-label={`Gallery page ${number}`} className={`h-12 w-12 rounded-xl font-semibold ${number === current ? 'bg-forest text-cream' : 'bg-amber-light text-forest'}`}>{number}</button>)}</nav>}
+    </div></section>
 
-          {pages > 1 && (
-            <div className="mt-10 flex justify-center gap-2">
-              {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`h-10 w-10 rounded-xl text-sm font-semibold ${p === current ? 'bg-forest text-cream' : 'bg-white text-forest ring-1 ring-forest/15 hover:bg-forest-mist'}`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+    <section className="films-section section-space" id="videos"><div className="container-x">
+      <div className="section-heading"><div><p className="eyebrow">Afghanistan, in motion</p><h2>Press play.<br/><em>Feel a little closer.</em></h2></div><div><p>A glimpse of the landscapes, open roads, and everyday moments that make the journey.</p></div></div>
+      {videos.length ? <div className="film-grid">{videos.map(film => <FilmCard key={film.id} film={film} onPlay={item => { setPlaybackError(false); setPreview({ ...item, media_type: 'video' }); }} />)}</div> : <p className="empty-note">Our next travel films are on the way.</p>}
+    </div></section>
 
-      {/* Videos */}
-      <section className="bg-forest-mist/50 py-16" id="videos">
-        <div className="container-x">
-          <h2 className="mb-8 font-display text-2xl font-semibold text-forest">Videos</h2>
-          {videos.length ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {videos.map((v) => (
-                <a
-                  key={v.id}
-                  href={v.video_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group relative block aspect-video overflow-hidden rounded-2xl bg-forest-deep shadow-md"
-                >
-                  <img
-                    src={v.image_path || utils.ytThumb(v.video_url) || `https://picsum.photos/seed/ae-vid-${v.id}/640/360`}
-                    alt={v.caption || 'Video'}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <span className="absolute inset-0 grid place-items-center">
-                    <span className="grid h-14 w-14 place-items-center rounded-full bg-black/50 text-lg text-cream backdrop-blur-sm transition group-hover:scale-110 group-hover:bg-amber group-hover:text-forest-deep">
-                      ▶
-                    </span>
-                  </span>
-                  {v.caption && (
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/85 to-transparent px-4 pb-3 pt-10 text-sm font-medium text-cream">
-                      {v.caption}
-                    </span>
-                  )}
-                </a>
-              ))}
-            </div>
-          ) : (
-            <p className="rounded-2xl bg-white py-12 text-center text-ink/60">No videos yet.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Lightbox */}
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[100] grid place-items-center bg-forest-deep/90 p-4 backdrop-blur-sm"
-          onClick={() => setLightbox(null)}
-        >
-          <figure className="max-h-[88vh] max-w-5xl" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={lightbox.image_path}
-              alt={lightbox.caption || ''}
-              className="max-h-[80vh] w-auto rounded-2xl object-contain shadow-2xl"
-            />
-            {lightbox.caption && (
-              <figcaption className="mt-3 text-center text-sm text-cream/80">{lightbox.caption}</figcaption>
-            )}
-            <button
-              onClick={() => setLightbox(null)}
-              className="absolute right-6 top-6 grid h-11 w-11 place-items-center rounded-full bg-cream/10 text-xl text-cream hover:bg-cream/20"
-              aria-label="Close"
-            >
-              ×
-            </button>
-          </figure>
-        </div>
-      )}
-    </>
-  );
+    {preview && <div role="dialog" aria-modal="true" aria-label={preview.caption || (video ? 'Travel film' : 'Photo preview')} className="gallery-overlay" onClick={() => setPreview(null)}>
+      <figure className={`gallery-dialog ${video ? 'is-film' : ''}`} ref={dialogRef} onClick={event => event.stopPropagation()}>
+        <button className="gallery-close" aria-label="Close" ref={closeRef} onClick={() => setPreview(null)}>×</button>
+        {video?.kind === 'file' ? <video controls playsInline preload="metadata" poster={preview.image_path || FALLBACK_POSTER} src={video.src} tabIndex={0} onError={() => setPlaybackError(true)} /> : video?.kind === 'youtube' ? <iframe src={video.src} title={preview.caption || 'Travel film'} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen /> : <img src={preview.image_path} alt={preview.caption || ''} />}
+        {preview.caption && <figcaption>{preview.caption}</figcaption>}
+        {playbackError && <p className="film-error">This film could not load. <a href={video.src} target="_blank" rel="noopener noreferrer">Open the video directly</a> or try again.</p>}
+      </figure>
+    </div>}
+  </>;
 }

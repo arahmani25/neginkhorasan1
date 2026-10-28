@@ -32,7 +32,7 @@ export default function PackageBrowser({ packages }) {
           (!q ||
             p.name.toLowerCase().includes(q.toLowerCase()) ||
             (p.description || '').toLowerCase().includes(q.toLowerCase())) &&
-          (!dest || p.location === dest)
+          (!dest || (p.location || '').toLowerCase() === dest.toLowerCase())
       ),
     [packages, q, dest]
   );
@@ -64,13 +64,13 @@ export default function PackageBrowser({ packages }) {
       <div className="mb-10 grid gap-3 rounded-3xl bg-white p-4 shadow-[0_10px_30px_rgba(12,43,41,0.08)] ring-1 ring-forest/5 sm:grid-cols-[2fr_1.5fr_auto]">
         <input
           className="input"
-          placeholder="Search packages…"
+          aria-label="Search journeys" placeholder="Search journeys…"
           value={q}
           onChange={(e) => { setQ(e.target.value); setPage(1); }}
         />
         <select
           className="input"
-          value={dest}
+          aria-label="Filter by destination" value={dest}
           onChange={(e) => { setDest(e.target.value); setPage(1); }}
         >
           <option value="">All destinations</option>

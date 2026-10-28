@@ -107,6 +107,7 @@ create table if not exists public.site_settings (
   site_name text default 'Negin Khorasan',
   tagline text default 'Explore the soul of the land',
   email text default 'afghanechoes@gmail.com',
+  whatsapp_number text default '+93781608702',
   phone text default '+93786452758',
   address text default 'Shahr-e-Naw, Haji Yaqoob Square, Kabul, Afghanistan',
   about text,
@@ -115,7 +116,7 @@ create table if not exists public.site_settings (
 
 -- ---------- Row Level Security ----------
 -- Public can READ content tables and INSERT form data.
--- Only authenticated users (your admin login) can write content.
+-- Only accounts with app_metadata.role = admin can write content or read customer data.
 
 alter table public.packages enable row level security;
 alter table public.blog_posts enable row level security;
@@ -138,21 +139,21 @@ create policy "public read team"         on public.team         for select using
 create policy "public read destinations" on public.destinations for select using (true);
 create policy "public read settings"     on public.site_settings for select using (true);
 
-create policy "public insert bookings"    on public.bookings    for insert with check (true);
-create policy "public insert messages"    on public.messages    for insert with check (true);
-create policy "public insert subscribers" on public.subscribers for insert with check (true);
+create policy "public insert bookings" on public.bookings for insert with check (status = 'new' and people between 1 and 100 and length(trim(full_name)) between 1 and 150 and length(email) between 3 and 254 and position('@' in email) > 1 and length(coalesce(notes,'')) <= 3000 and length(coalesce(phone,'')) <= 50 and length(coalesce(dates,'')) <= 150);
+create policy "public insert messages" on public.messages for insert with check (length(trim(name)) between 1 and 150 and length(email) between 3 and 254 and position('@' in email) > 1 and length(trim(message)) between 1 and 5000 and length(coalesce(subject,'')) <= 200);
+create policy "public insert subscribers" on public.subscribers for insert with check (length(email) between 3 and 254 and position('@' in email) > 1);
 
-create policy "admin all packages"     on public.packages      for all to authenticated using (true) with check (true);
-create policy "admin all blog"         on public.blog_posts    for all to authenticated using (true) with check (true);
-create policy "admin all news"         on public.news          for all to authenticated using (true) with check (true);
-create policy "admin all gallery"      on public.gallery       for all to authenticated using (true) with check (true);
-create policy "admin all services"     on public.services      for all to authenticated using (true) with check (true);
-create policy "admin all team"         on public.team          for all to authenticated using (true) with check (true);
-create policy "admin all destinations" on public.destinations  for all to authenticated using (true) with check (true);
-create policy "admin all settings"     on public.site_settings for all to authenticated using (true) with check (true);
-create policy "admin all bookings"     on public.bookings      for all to authenticated using (true) with check (true);
-create policy "admin all messages"     on public.messages      for all to authenticated using (true) with check (true);
-create policy "admin all subscribers"  on public.subscribers   for all to authenticated using (true) with check (true);
+create policy "admin all packages"     on public.packages      for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all blog"         on public.blog_posts    for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all news"         on public.news          for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all gallery"      on public.gallery       for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all services"     on public.services      for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all team"         on public.team          for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all destinations" on public.destinations  for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all settings"     on public.site_settings for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all bookings"     on public.bookings      for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all messages"     on public.messages      for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admin all subscribers"  on public.subscribers   for all to authenticated using (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- Storage bucket for admin uploads ----------
 insert into storage.buckets (id, name, public)
@@ -162,7 +163,7 @@ on conflict (id) do nothing;
 create policy "public read media" on storage.objects
   for select using (bucket_id = 'media');
 create policy "admin write media" on storage.objects
-  for all to authenticated using (bucket_id = 'media') with check (bucket_id = 'media');
+  for all to authenticated using (bucket_id = 'media' and ((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin') with check (bucket_id = 'media' and ((select auth.jwt()) -> 'app_metadata' ->> 'role') = 'admin');
 
 -- ---------- Seed data ----------
 -- Real photos are bundled in the site's /public/images folder,
@@ -235,5 +236,5 @@ insert into public.gallery (media_type, image_path, video_url, caption) values
 ('image', '/images/gal-4.jpg', '', 'The cliff of the Buddhas'),
 ('image', '/images/gal-5.jpg', '', 'Mazar-e-Sharif minaret'),
 ('image', '/images/gal-6.jpg', '', 'Herat at dusk'),
-('video', '', 'https://www.youtube.com/shorts/tv5njtUNews', 'Afghanistan travel film'),
-('video', '', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'Kunduz — Silk Road');
+('video', '/images/film-road.jpg', '/videos/afghanistan-journey.mp4', 'Afghanistan, from the open road'),
+('video', '/images/film-badakhshan.jpg', '/videos/moments-from-the-road.mp4', 'A glimpse of Badakhshan');

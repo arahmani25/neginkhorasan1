@@ -4,11 +4,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        forest: { DEFAULT: '#0C2B29', deep: '#071E1D', mid: '#12403C', soft: '#1B5A52', mist: '#EAF1EE' },
-        sand: { DEFAULT: '#F4EFE4', dark: '#E7DEC9' },
-        amber: { DEFAULT: '#D9A441', light: '#EAC06B', dark: '#B98430' },
-        cream: '#FBF8F1',
-        ink: '#22302E'
+        forest: { DEFAULT: '#163E40', deep: '#0C292D', mid: '#245356', soft: '#3F756C', mist: '#EDF0E8' },
+        sand: { DEFAULT: '#FBE5CD', dark: '#E9BE96' },
+        amber: { DEFAULT: '#F28B45', light: '#FFD5B0', dark: '#91451D' },
+        cream: '#FFF5E9',
+        ink: '#233F3E'
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],

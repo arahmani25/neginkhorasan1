@@ -1,72 +1,30 @@
 'use client';
-
-import { useState } from 'react';
-import { getBrowserSupabase } from '@/lib/supabase';
-
-export default function ContactForm({ defaultSubject = '' }) {
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  async function submit(e) {
-    e.preventDefault();
-    setError('');
-    const f = new FormData(e.target);
-    const msg = {
-      name: f.get('name'),
-      email: f.get('email'),
-      subject: f.get('subject'),
-      message: f.get('message')
-    };
-    setSaving(true);
-    const sb = getBrowserSupabase();
-    if (sb) {
-      const { error: err } = await sb.from('messages').insert(msg);
-      if (err) setError('Something went wrong. Please try again or email us directly.');
-      else setDone(true);
-    } else {
-      setDone(true); // demo mode
-    }
-    setSaving(false);
-  }
-
-  if (done) {
-    return (
-      <div className="py-14 text-center">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-forest-mist">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#12403C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-        </div>
-        <h3 className="mt-4 font-display text-2xl font-semibold text-forest">Message Sent</h3>
-        <p className="mt-2 text-sm text-ink/60">Thanks! Your message was sent. We will get back to you soon.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={submit}>
-      <h2 className="font-display text-2xl font-semibold text-forest">Send us a message</h2>
-      {error && <div className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="label">Your name *</label>
-          <input name="name" required className="input" />
-        </div>
-        <div>
-          <label className="label">Email *</label>
-          <input name="email" type="email" required className="input" />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="label">Subject</label>
-          <input name="subject" defaultValue={defaultSubject} className="input" />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="label">Message *</label>
-          <textarea name="message" rows="6" required className="input" />
-        </div>
-      </div>
-      <button disabled={saving} className="btn-forest mt-6 disabled:opacity-60">
-        {saving ? 'Sending…' : 'Send Message'}
-      </button>
-    </form>
-  );
+import {useState} from 'react';
+import {getBrowserSupabase,isSupabaseConfigured} from '@/lib/supabase';
+import {Arrow} from './Icons';
+export default function ContactForm({defaultSubject='',email='afghanechoes@gmail.com'}) {
+ const [done,setDone]=useState(false),[draft,setDraft]=useState(null),[error,setError]=useState(''),[saving,setSaving]=useState(false);
+ async function submit(e){
+  e.preventDefault();setError('');setSaving(true);
+  const form=new FormData(e.currentTarget);
+  const msg={name:String(form.get('name')).trim(),email:String(form.get('email')).trim(),subject:String(form.get('subject')||'').trim(),message:String(form.get('message')).trim()};
+  if(!msg.name||!msg.message){setError('Please enter your name and message.');setSaving(false);return;}
+  try {
+   const sb=getBrowserSupabase();
+   if(!sb){setDraft(msg);return;}
+   const {error}=await sb.from('messages').insert(msg);if(error)throw error;setDone(true);
+  }catch{setError('Your message could not be saved. Please try again or email '+email+'.');}
+  finally{setSaving(false);}
+ }
+ if(done) return <div className="py-12"><p className="eyebrow">THANK YOU FOR REACHING OUT</p><h2 className="mt-5 text-3xl tracking-tight text-forest">Your message is with us.</h2><p className="mt-4 text-sm leading-relaxed text-ink/65">Our team will get back to you using the email address you provided.</p><button className="text-link" onClick={()=>setDone(false)}>Send another message <Arrow/></button></div>;
+ if(draft) return <div className="py-8"><p className="eyebrow">ONE MORE STEP</p><h2 className="mt-5 text-3xl tracking-tight text-forest">Your draft is ready.</h2><p className="mt-4 text-sm leading-relaxed text-ink/65">Open your email app and press Send to deliver this message. Nothing has been submitted online.</p><a className="btn-forest mt-7" href={`mailto:${email}?subject=${encodeURIComponent(draft.subject||'Travel enquiry')}&body=${encodeURIComponent('Name: '+draft.name+'\nEmail: '+draft.email+'\n\n'+draft.message)}`}>Open email draft <Arrow/></a><button className="block mt-6 text-xs underline text-forest" onClick={()=>setDraft(null)}>Edit message</button></div>;
+ return <form onSubmit={submit}><p className="eyebrow">LET'S TALK TRAVEL</p><h2 className="mt-3 text-3xl tracking-tight text-forest">What are you dreaming of?</h2><p className="mt-3 mb-6 text-sm leading-relaxed text-ink/60">Big ideas, little questions. We would love to hear them.</p>
+ {!isSupabaseConfigured&&<p className="form-notice">Online messaging is being set up. You can use this form to prepare an email to our team.</p>}
+ {error&&<p role="alert" className="mb-4 rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</p>}
+ <div className="grid gap-5 sm:grid-cols-2">
+ <div><label className="label" htmlFor="contact-name">Your name *</label><input id="contact-name" name="name" autoComplete="name" maxLength={150} required className="input"/></div>
+ <div><label className="label" htmlFor="contact-email">Email *</label><input id="contact-email" name="email" type="email" autoComplete="email" maxLength={254} required className="input"/></div>
+ <div className="sm:col-span-2"><label className="label" htmlFor="contact-subject">Subject</label><input id="contact-subject" name="subject" maxLength={200} defaultValue={defaultSubject} className="input"/></div>
+ <div className="sm:col-span-2"><label className="label" htmlFor="contact-message">Your message *</label><textarea id="contact-message" name="message" rows="6" maxLength={5000} required className="input"/></div>
+ </div><button disabled={saving} className="btn-forest mt-6">{saving?'Sending…':isSupabaseConfigured?'Send message':'Prepare email message'}<Arrow/></button></form>;
 }

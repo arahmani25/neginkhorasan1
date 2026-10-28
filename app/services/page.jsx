@@ -18,7 +18,7 @@ export default async function ServicesPage() {
     <>
       <PageHero
         eyebrow="What we do"
-        title="Our Services"
+        title="Follow your curiosity."
         sub="From nature expeditions to photography journeys — we handle every detail of your trip."
       />
 
@@ -60,7 +60,7 @@ export default async function ServicesPage() {
         />
         <div className="container-x relative">
           <h2 className="mx-auto max-w-2xl font-display text-3xl font-semibold text-cream md:text-4xl">
-            Lets you Explore the Best. Contact Us Now
+            Your idea of extraordinary starts here.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-cream/75">
             Tell us where you want to go — we will craft the journey around your pace and interests.

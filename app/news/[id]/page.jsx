@@ -7,12 +7,14 @@ import { NEWS } from '@/lib/seed';
 export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
-  const post = await getPost('news', params.id, NEWS);
+  const {id} = await params;
+  const post = await getPost('news', id, NEWS);
   return { title: post ? post.title : 'News' };
 }
 
 export default async function NewsDetail({ params }) {
-  const [post, all] = await Promise.all([getPost('news', params.id, NEWS), getNews()]);
+  const {id} = await params;
+  const [post, all] = await Promise.all([getPost('news', id, NEWS), getNews()]);
   if (!post) notFound();
 
   const sorted = [...all].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));

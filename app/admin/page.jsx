@@ -49,7 +49,7 @@ const RESOURCES = {
     fields: [
       { name: 'media_type', label: 'Media type', type: 'select', options: ['image', 'video'] },
       { name: 'image_path', label: 'Image (or YouTube thumbnail fallback)', type: 'image' },
-      { name: 'video_url', label: 'Video URL (YouTube link)', type: 'text' },
+      { name: 'video_url', label: 'Video URL (YouTube or MP4 / WebM file)', type: 'text' },
       { name: 'caption', label: 'Caption', type: 'text' }
     ]
   },
@@ -98,6 +98,7 @@ const SETTINGS_FIELDS = [
   { name: 'tagline', label: 'Tagline', type: 'text' },
   { name: 'email', label: 'Email', type: 'text' },
   { name: 'phone', label: 'Phone', type: 'text' },
+  { name: 'whatsapp_number', label: 'WhatsApp number (include country code)', type: 'text' },
   { name: 'address', label: 'Address', type: 'text' },
   { name: 'about', label: 'About text (shown on About page)', type: 'textarea', rows: 8 }
 ];
@@ -142,6 +143,7 @@ export default function AdminPage() {
   }
 
   if (!session) return <AdminLogin sb={sb} onLoggedIn={setSession} />;
+  if (session.user.app_metadata?.role !== 'admin') return <div className="container-x py-24 text-center"><h1 className="text-3xl text-forest">Staff access required</h1><p className="mt-4 text-sm">This account does not have permission to manage the website.</p><button className="btn-forest mt-6" onClick={() => sb.auth.signOut()}>Sign out</button></div>;
 
   return (
     <div className="flex min-h-screen bg-forest-mist/40">
@@ -170,10 +172,11 @@ export default function AdminPage() {
 
       {/* Main */}
       <div className="min-w-0 flex-1 p-5 md:p-8">
+        <button className="btn-outline mb-5 md:hidden" onClick={() => sb.auth.signOut()}>Sign out</button>
         {/* Mobile tabs */}
         <select
           className="mb-5 w-full rounded-xl border border-forest/15 bg-white px-3 py-2.5 text-sm md:hidden"
-          value={tab}
+          aria-label="Admin section" value={tab}
           onChange={(e) => setTab(e.target.value)}
         >
           <option value="dashboard">Dashboard</option>
@@ -229,9 +232,9 @@ function AdminLogin({ sb, onLoggedIn }) {
         <p className="mt-1 text-sm text-cream/60">Manage packages, blog, news, gallery & more.</p>
         {error && <div className="mt-4 rounded-xl bg-red-500/15 px-4 py-2.5 text-sm text-red-200">{error}</div>}
         <div className="mt-5 space-y-3">
-          <input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}
+          <input aria-label="Staff email" autoComplete="username" type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}
             className="w-full rounded-xl border border-cream/20 bg-cream/10 px-4 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-amber focus:outline-none" />
-          <input type="password" required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}
+          <input aria-label="Staff password" autoComplete="current-password" type="password" required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-xl border border-cream/20 bg-cream/10 px-4 py-2.5 text-sm text-cream placeholder:text-cream/40 focus:border-amber focus:outline-none" />
         </div>
         <button disabled={busy} className="btn-amber mt-5 w-full disabled:opacity-60">
@@ -290,9 +293,11 @@ function CrudPanel({ sb, def }) {
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null); // {} = new, object = edit
   const [notice, setNotice] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const { data } = await sb.from(def.table).select('*').order('created_at', { ascending: false });
+    const { data, error } = await sb.from(def.table).select('*').order('created_at', { ascending: false });
+    if (error) { setNotice('Could not load content: ' + error.message); return; }
     setItems(data || []);
   }, [sb, def.table]);
 
@@ -300,6 +305,8 @@ function CrudPanel({ sb, def }) {
 
   async function save(e) {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     const form = new FormData(e.target);
     const rec = {};
     for (const f of def.fields) {
@@ -312,6 +319,7 @@ function CrudPanel({ sb, def }) {
     let err;
     if (editing?.id) ({ error: err } = await sb.from(def.table).update(rec).eq('id', editing.id));
     else ({ error: err } = await sb.from(def.table).insert(rec));
+    setSaving(false);
     if (err) setNotice('Error: ' + err.message);
     else { setNotice(editing?.id ? 'Saved changes.' : 'Item created.'); setEditing(null); load(); }
   }
@@ -349,7 +357,7 @@ function CrudPanel({ sb, def }) {
 
       {/* Editor */}
       {editing && (
-        <form onSubmit={save} className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-forest/5">
+        <form key={editing.id || 'new'} onSubmit={save} className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-forest/5">
           <h2 className="font-display text-xl font-semibold text-forest">
             {editing.id ? 'Edit' : 'New'} {def.label.slice(0, -1) || def.label}
           </h2>
@@ -365,7 +373,7 @@ function CrudPanel({ sb, def }) {
             ))}
           </div>
           <div className="mt-6 flex gap-2">
-            <button className="btn-forest" type="submit">{editing.id ? 'Save changes' : 'Create'}</button>
+            <button disabled={saving} className="btn-forest" type="submit">{editing.id ? 'Save changes' : 'Create'}</button>
             <button type="button" onClick={() => setEditing(null)} className="btn-outline">Cancel</button>
           </div>
         </form>
@@ -410,15 +418,15 @@ function Field({ f, value, onUpload, full }) {
   if (f.type === 'textarea')
     return (
       <div className={cls}>
-        <label className="label">{f.label}{f.required ? ' *' : ''}</label>
-        <textarea name={f.name} rows={f.rows || 4} required={f.required} defaultValue={value ?? ''} className={inputCls} />
+        <label htmlFor={'admin-' + f.name} className="label">{f.label}{f.required ? ' *' : ''}</label>
+        <textarea id={'admin-' + f.name} name={f.name} rows={f.rows || 4} required={f.required} defaultValue={value ?? ''} className={inputCls} />
       </div>
     );
   if (f.type === 'select')
     return (
       <div className={cls}>
-        <label className="label">{f.label}</label>
-        <select name={f.name} defaultValue={value ?? f.options[0]} className={inputCls}>
+        <label htmlFor={'admin-' + f.name} className="label">{f.label}</label>
+        <select id={'admin-' + f.name} name={f.name} defaultValue={value ?? f.options[0]} className={inputCls}>
           {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
       </div>
@@ -433,7 +441,7 @@ function Field({ f, value, onUpload, full }) {
   if (f.type === 'image')
     return (
       <div className={cls}>
-        <label className="label">{f.label}</label>
+        <label htmlFor={'admin-' + f.name} className="label">{f.label}</label>
         <input type="hidden" name={f.name} value={url || ''} />
         <div className="flex flex-wrap items-center gap-3">
           {url && <img src={url} alt="" className="h-16 w-16 rounded-xl object-cover ring-1 ring-forest/10" />}
@@ -442,15 +450,15 @@ function Field({ f, value, onUpload, full }) {
             <input type="file" accept="image/*" className="hidden"
               onChange={(e) => e.target.files[0] && onUpload(e.target.files[0], setUrl)} />
           </label>
-          <input value={url || ''} onChange={(e) => setUrl(e.target.value)} placeholder="…or paste an image URL"
+          <input id={'admin-' + f.name} value={url || ''} onChange={(e) => setUrl(e.target.value)} placeholder="…or paste an image URL"
             className="min-w-0 flex-1 rounded-xl border border-forest/15 px-3 py-2 text-xs outline-none focus:border-amber" />
         </div>
       </div>
     );
   return (
     <div className={cls}>
-      <label className="label">{f.label}{f.required ? ' *' : ''}</label>
-      <input name={f.name} type={f.type} required={f.required} defaultValue={value ?? ''} className={inputCls} />
+      <label htmlFor={'admin-' + f.name} className="label">{f.label}{f.required ? ' *' : ''}</label>
+      <input id={'admin-' + f.name} name={f.name} type={f.type} required={f.required} defaultValue={value ?? ''} className={inputCls} />
     </div>
   );
 }
@@ -458,20 +466,24 @@ function Field({ f, value, onUpload, full }) {
 /* ------------------------- Inbox ---------------------------------- */
 function InboxPanel({ sb, def }) {
   const [items, setItems] = useState([]);
+  const [notice, setNotice] = useState('');
   const load = useCallback(async () => {
-    const { data } = await sb.from(def.table).select('*').order('created_at', { ascending: false });
+    const { data, error } = await sb.from(def.table).select('*').order('created_at', { ascending: false });
+    if(error) {setNotice('Could not load inbox: ' + error.message);return;}
     setItems(data || []);
   }, [sb, def.table]);
   useEffect(() => { load(); }, [load]);
 
   async function remove(id) {
     if (!confirm('Delete this item?')) return;
-    await sb.from(def.table).delete().eq('id', id);
+    const {error} = await sb.from(def.table).delete().eq('id', id);
+    if(error) {setNotice(error.message);return;}
     load();
   }
 
   async function setStatus(id, status) {
-    await sb.from(def.table).update({ status }).eq('id', id);
+    const {error} = await sb.from(def.table).update({ status }).eq('id', id);
+    if(error) {setNotice(error.message);return;}
     load();
   }
 
@@ -479,6 +491,7 @@ function InboxPanel({ sb, def }) {
     <div>
       <h1 className="font-display text-3xl font-semibold text-forest">{def.label}</h1>
       <p className="mt-1 text-sm text-ink/55">{items.length} item{items.length === 1 ? '' : 's'}</p>
+      {notice && <p role="alert" className="mt-4 text-red-700">{notice}</p>}
       <div className="mt-6 space-y-4">
         {items.length === 0 && (
           <p className="rounded-3xl bg-white p-10 text-center text-sm text-ink/50 shadow-sm ring-1 ring-forest/5">
@@ -513,7 +526,7 @@ function InboxPanel({ sb, def }) {
               </div>
             </div>
             {it.subject && <p className="mt-2 text-sm font-medium text-ink/80">Subject: {it.subject}</p>}
-            {it.dates && <p className="mt-1 text-sm text-ink/70">Dates: {it.dates} · People: {it.people} · Total: ${it.price_total}</p>}
+            {it.dates && <p className="mt-1 text-sm text-ink/70">Dates: {it.dates} · People: {it.people}</p>}
             {(it.message || it.notes) && (
               <p className="mt-2 rounded-xl bg-sand/60 px-4 py-3 text-sm leading-relaxed text-ink/75">{it.message || it.notes}</p>
             )}
@@ -557,13 +570,13 @@ function SettingsPanel({ sb }) {
           {SETTINGS_FIELDS.map((f) =>
             f.type === 'textarea' ? (
               <div key={f.name} className="sm:col-span-2">
-                <label className="label">{f.label}</label>
-                <textarea name={f.name} rows={f.rows} defaultValue={settings[f.name] ?? ''} className={inputCls} />
+                <label htmlFor={'admin-' + f.name} className="label">{f.label}</label>
+                <textarea id={'admin-' + f.name} name={f.name} rows={f.rows} defaultValue={settings[f.name] ?? ''} className={inputCls} />
               </div>
             ) : (
               <div key={f.name}>
-                <label className="label">{f.label}</label>
-                <input name={f.name} defaultValue={settings[f.name] ?? ''} className={inputCls} />
+                <label htmlFor={'admin-' + f.name} className="label">{f.label}</label>
+                <input id={'admin-' + f.name} name={f.name} defaultValue={settings[f.name] ?? ''} className={inputCls} />
               </div>
             )
           )}

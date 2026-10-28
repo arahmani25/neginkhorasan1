@@ -11,8 +11,8 @@ export default async function PackagesPage() {
     <>
       <PageHero
         eyebrow="Curated Journeys"
-        title="Tour Packages"
-        sub="Explore curated trips and scholarship programs across Afghanistan and beyond."
+        title="Your next chapter."
+        sub="Locally led journeys for the curious. Find your inspiration, then make it your own."
       />
       <section className="py-16">
         <div className="container-x">

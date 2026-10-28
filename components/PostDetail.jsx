@@ -1,3 +1,4 @@
+import { cleanHtml } from '@/lib/html';
 import Link from 'next/link';
 import { utils } from '@/lib/data';
 
@@ -8,7 +9,7 @@ export default function PostDetail({ post, kind, backHref, backLabel }) {
 
   return (
     <>
-      <section className="bg-forest pb-14 pt-40 text-cream">
+      <section className="bg-forest pb-14 pt-20 text-cream">
         <div className="container-x">
           <span className="chip bg-amber font-bold text-forest-deep">{kind}</span>
           <h1 className="mt-4 max-w-3xl font-display text-3xl font-semibold leading-tight md:text-5xl">
@@ -29,7 +30,7 @@ export default function PostDetail({ post, kind, backHref, backLabel }) {
           )}
           <div
             className="prose-article"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{ __html: cleanHtml(post.content) }}
           />
           <div className="mt-12 text-center">
             <Link href={backHref} className="btn-forest">{backLabel}</Link>

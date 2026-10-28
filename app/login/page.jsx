@@ -44,18 +44,18 @@ export default function LoginPage() {
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
-            <label className="label !text-cream/60">Email</label>
+            <label htmlFor="login-email" className="label !text-cream/60">Email</label>
             <input
-              type="email" required value={email}
+              id="login-email" autoComplete="username" type="email" required value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="input !border-cream/20 !bg-cream/10 !text-cream placeholder:!text-cream/40 focus:!border-amber"
               placeholder="admin@example.com"
             />
           </div>
           <div>
-            <label className="label !text-cream/60">Password</label>
+            <label htmlFor="login-password" className="label !text-cream/60">Password</label>
             <input
-              type="password" required value={password}
+              id="login-password" autoComplete="current-password" type="password" required value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="input !border-cream/20 !bg-cream/10 !text-cream placeholder:!text-cream/40 focus:!border-amber"
               placeholder="••••••••"

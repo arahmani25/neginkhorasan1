@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function NotFound(){return <section className="container-x py-24 text-center"><p className="eyebrow">404 / OFF THE BEATEN PATH</p><h1 className="mt-5 text-4xl tracking-tight text-forest">This trail ends here.</h1><p className="mt-4 text-sm text-ink/65">The page may have moved. There is still plenty to explore.</p><Link href="/packages" className="btn-forest mt-8">Find a journey</Link></section>;}

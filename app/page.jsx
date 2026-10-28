@@ -1,200 +1,47 @@
 import Link from 'next/link';
 import Hero from '@/components/Hero';
-import { SectionHead, PackageCard, DestinationCard, PostCard, ServiceCard } from '@/components/cards';
-import { getPackages, getDestinations, getServices, getNews, getBlogPosts, getGallery } from '@/lib/data';
-import { SLIDES, ICON_STRIP } from '@/lib/seed';
-
+import Reveal from '@/components/Reveal';
+import { Arrow, Icon } from '@/components/Icons';
+import { PackageCard, DestinationCard, PostCard } from '@/components/cards';
+import { getPackages, getDestinations, getServices, getBlogPosts, getGallery } from '@/lib/data';
+import { SLIDES } from '@/lib/seed';
 export const revalidate = 60;
-
-const TICKER = ['Kabul', 'Bamyan', 'Band-e-Amir', 'Herat', 'Mazar-e-Sharif', 'Balkh', 'Paghman', 'Hindu Kush'];
-
-const STATS = [
-  { value: '100%', label: 'Local guides' },
-  { value: '4', label: 'Signature journeys' },
-  { value: '3', label: 'UNESCO sites visited' },
-  { value: '24/7', label: 'On-trip support' }
+const FAQ = [
+  ['Can you help me plan a private trip?', 'Absolutely. Tell us your interests, dates, and group size. Our local team will work with you on an itinerary, accommodation, and transport before you confirm your journey.'],
+  ['How do booking requests work?', 'Choose a journey and send a request with your preferred dates. Our team confirms availability and discusses every detail with you directly. No online payment is required.'],
+  ['What about travel documents and local conditions?', 'Entry requirements and conditions can change. Contact our team before booking flights to discuss local arrangements. Check the travel advice issued by your government and arrange suitable insurance.'],
+  ['Can I travel at my own pace?', 'Yes. Photography stops, cultural visits, and time in nature can all be part of the conversation. We plan around your interests and the conditions along the route.'],
 ];
-
 export default async function Home() {
-  const [packages, destinations, services, news, posts, gallery] = await Promise.all([
-    getPackages(), getDestinations(), getServices(), getNews(), getBlogPosts(), getGallery()
-  ]);
-  const featured = packages.filter((p) => p.featured).slice(0, 3);
-  const images = gallery.filter((g) => g.media_type === 'image').slice(0, 6);
-
-  return (
-    <>
-      <Hero slides={SLIDES} />
-
-      {/* Destination ticker */}
-      <div className="overflow-hidden border-y border-forest/10 bg-forest py-4">
-        <div className="marquee flex whitespace-nowrap">
-          {[0, 1].map((n) => (
-            <div key={n} className="flex shrink-0 items-center">
-              {TICKER.map((t) => (
-                <span key={t} className="mx-6 flex items-center gap-6 font-display text-lg tracking-wide text-cream/85">
-                  {t}
-                  <span className="text-amber">✦</span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Icon strip */}
-      <section className="relative z-10 -mt-2 bg-cream pt-16">
-        <div className="container-x grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {ICON_STRIP.map((s) => (
-            <div
-              key={s.title}
-              className="group rounded-3xl bg-white p-6 shadow-[0_18px_40px_rgba(12,43,41,0.10)] ring-1 ring-forest/5 transition hover:-translate-y-1 hover:shadow-[0_26px_50px_rgba(12,43,41,0.16)]"
-            >
-              <span className="grid h-12 w-12 place-items-center rounded-2xl bg-forest-mist text-forest-mid transition group-hover:bg-amber group-hover:text-forest-deep">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={s.icon} />
-                </svg>
-              </span>
-              <h3 className="mt-4 font-display text-lg font-semibold text-forest">{s.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink/60">{s.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Stats band */}
-      <section className="bg-cream pb-20 pt-14">
-        <div className="container-x grid grid-cols-2 gap-6 rounded-[2rem] bg-forest px-8 py-10 md:grid-cols-4">
-          {STATS.map((st) => (
-            <div key={st.label} className="text-center">
-              <p className="font-display text-4xl font-semibold text-amber md:text-5xl">{st.value}</p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-cream/70">{st.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Destinations */}
-      <section className="pb-24">
-        <div className="container-x">
-          <SectionHead
-            eyebrow="Top Destinations"
-            title="Places that stay with you"
-            sub="Hand-picked regions our travelers fall in love with — every one led by guides who grew up there."
-          />
-          <div className="grid gap-6 md:grid-cols-3">
-            {destinations.slice(0, 3).map((d) => <DestinationCard key={d.id} d={d} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured packages */}
-      <section className="bg-forest-mist/50 py-24">
-        <div className="container-x">
-          <SectionHead
-            eyebrow="Featured"
-            title="Signature Journeys"
-            sub="Carefully crafted trips — request a booking and we will confirm every detail by email."
-          />
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {featured.map((p) => <PackageCard key={p.id} p={p} />)}
-          </div>
-          <div className="mt-12 text-center">
-            <Link href="/packages" className="btn-forest">View All Journeys</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Services */}
-      <section className="py-24">
-        <div className="container-x">
-          <SectionHead
-            eyebrow="What We Do"
-            title="Every detail, handled"
-            sub="From nature expeditions to photography journeys — we design the trip around you."
-          />
-          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
-            {services.slice(0, 4).map((s) => <ServiceCard key={s.id} s={s} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery preview */}
-      <section className="bg-forest-deep py-24">
-        <div className="container-x">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="eyebrow !text-amber-light">Moments</p>
-              <h2 className="mt-3 font-display text-3xl font-semibold text-cream md:text-4xl">
-                From Our Gallery
-              </h2>
-            </div>
-            <Link href="/gallery" className="btn-ghost">View Full Gallery</Link>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {images.map((g) => (
-              <Link
-                key={g.id}
-                href="/gallery"
-                className="group relative block overflow-hidden rounded-2xl"
-              >
-                <img
-                  src={g.image_path}
-                  alt={g.caption || 'Gallery image'}
-                  className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-108"
-                  loading="lazy"
-                />
-                {g.caption && (
-                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-forest-deep/80 to-transparent px-4 pb-3 pt-8 text-sm font-medium text-cream">
-                    {g.caption}
-                  </span>
-                )}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* News */}
-      <section className="py-24">
-        <div className="container-x">
-          <SectionHead eyebrow="Updates" title="Latest News" />
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {news.slice(0, 3).map((n) => <PostCard key={n.id} item={n} base="/news" />)}
-          </div>
-        </div>
-      </section>
-
-      {/* Blog */}
-      <section className="bg-forest-mist/50 py-24">
-        <div className="container-x">
-          <SectionHead eyebrow="Stories" title="From the Blog" />
-          <div className="grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-            {posts.slice(0, 3).map((b) => <PostCard key={b.id} item={b} base="/blog" />)}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="relative overflow-hidden bg-forest py-24 text-center">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'radial-gradient(circle at 30% 20%, #EAC06B 0, transparent 45%)' }}
-        />
-        <div className="container-x relative">
-          <p className="eyebrow justify-center !text-amber-light">Begin your journey</p>
-          <h2 className="mx-auto mt-4 max-w-3xl font-display text-3xl font-semibold leading-tight text-cream md:text-5xl">
-            The mountains are calling. Let us take you there.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-cream/75">
-            Tell us where you want to go — we will craft the journey around your pace and interests.
-          </p>
-          <div className="mt-9 flex justify-center gap-3">
-            <Link href="/contact" className="btn-amber">Get in Touch</Link>
-            <Link href="/packages" className="btn-ghost">Browse Journeys</Link>
-          </div>
-        </div>
-      </section>
-    </>
-  );
+  const [packages, destinations, services, posts, gallery] = await Promise.all([getPackages(), getDestinations(), getServices(), getBlogPosts(), getGallery()]);
+  const featured = [...packages.filter(p => p.featured), ...packages.filter(p => !p.featured)].slice(0, 3);
+  const images = gallery.filter(g => g.media_type === 'image').slice(0, 4);
+  return <>
+    <Hero slides={SLIDES} destinations={[...new Set(packages.map(p => p.location).filter(Boolean))]} />
+    <div className="trust-strip container-x"><span>LESS ORDINARY. MORE MEANINGFUL.</span><p><Icon name="people" /> Locally led journeys</p><p><Icon name="compass" /> Thoughtfully planned</p><p><Icon name="mountain" /> A different perspective</p></div>
+    <section id="discover" className="section-space"><div className="container-x">
+      <Reveal className="section-heading"><div><p className="eyebrow">01 / THE PLACES</p><h2>Far from ordinary.<br /><em>Close to unforgettable.</em></h2></div><div><p>Turquoise lakes. Ancient cities. Stories that have travelled the Silk Road. There is a whole other Afghanistan waiting to be discovered.</p><Link className="text-link" href="/packages">Explore all destinations <Arrow /></Link></div></Reveal>
+      {destinations.length > 0 ? <div className="destination-grid">{destinations.slice(0, 3).map((d, i) => <Reveal key={d.id} delay={i * 100}><DestinationCard d={d} index={i} /></Reveal>)}</div> : <p className="empty-note">Our next destinations are being planned. <Link href="/contact">Ask us about a private journey.</Link></p>}
+    </div></section>
+    <section className="story-section section-space"><div className="container-x story-grid">
+      <Reveal className="story-images"><img className="story-main" src="/images/about.jpg" alt="A landscape from Afghanistan" loading="lazy" /><img className="story-inset" src="/images/hero-mazar.jpg" alt="Turquoise architecture in Mazar-e-Sharif" loading="lazy" /><div className="story-stamp"><Icon name="sun" /><span>ROOTED HERE.<br />SHARED WITH YOU.</span></div></Reveal>
+      <Reveal className="story-copy"><p className="eyebrow">02 / THE PEOPLE</p><h2>Not just a place.<br /><em>A connection.</em></h2><p>We are Negin Khorasan. A local team with a simple belief: the best way to experience a country is with the people who know it by heart.</p><p>From a cup of tea in Kabul to the quiet of the Bamyan valleys, we take you beyond the itinerary and into the moments that make a journey yours.</p><div className="story-values"><span><Icon name="people" /> Local knowledge</span><span><Icon name="compass" /> Personal itineraries</span></div><Link href="/about" className="btn-forest">Meet your local team <Arrow /></Link></Reveal>
+    </div></section>
+    <section className="section-space"><div className="container-x">
+      <Reveal className="section-heading"><div><p className="eyebrow">03 / THE JOURNEYS</p><h2>Find your kind<br />of <em>extraordinary.</em></h2></div><div><p>For the curious, the culture seekers, and the ones who take the scenic route. Start with a journey. Make it your own.</p><Link href="/packages" className="text-link">All journeys <Arrow /></Link></div></Reveal>
+      <div className="grid gap-7 md:grid-cols-3">{featured.map((p, i) => <Reveal key={p.id} delay={i * 100}><PackageCard p={p} /></Reveal>)}</div>
+      {!featured.length && <p className="empty-note">New journeys are on the way. <Link href="/contact">Plan a custom trip with us.</Link></p>}
+    </div></section>
+    <section className="experience-section section-space"><div className="container-x experience-grid">
+      <Reveal><p className="eyebrow !text-amber-light">04 / YOUR WAY TO TRAVEL</p><h2>A little adventure.<br />A lot of <em>possibility.</em></h2><p>Follow your curiosity. We will take care of the details.</p><Link href="/services" className="btn-ghost mt-8">Discover our experiences <Arrow /></Link><div className="experience-image"><img src="/images/hero-herat.jpg" alt="Herat Citadel in warm afternoon light" loading="lazy" /><span>HERAT / A DIFFERENT POINT OF VIEW</span></div></Reveal>
+      <Reveal className="experience-list">{services.slice(0, 4).map((s, i) => <details key={s.id} name="experiences" open={i === 0}><summary><span className="experience-number">0{i + 1}</span><h3>{s.title}</h3><span className="accordion-plus" aria-hidden="true">+</span></summary><div className="experience-detail"><p>{s.text}</p><Link href="/contact" className="text-link">Plan this experience <Arrow /></Link></div></details>)}</Reveal>
+    </div></section>
+    <section className="section-space"><div className="container-x">
+      <Reveal className="section-heading"><div><p className="eyebrow">05 / LITTLE WINDOWS INTO OUR WORLD</p><h2>Less scrolling.<br /><em>More feeling.</em></h2></div><div><p>A few moments from the places we love. Imagine being here.</p><Link href="/gallery" className="text-link">Step into the gallery <Arrow /></Link></div></Reveal>
+      <div className="home-gallery">{images.map((g, i) => <Reveal key={g.id} delay={i * 70}><Link href="/gallery" className="gallery-tile"><img src={g.image_path} alt={g.caption || 'Afghanistan travel photograph'} loading="lazy" /><span>{g.caption}<Arrow /></span></Link></Reveal>)}</div>
+    </div></section>
+    {posts.length > 0 && <section className="journal-section section-space"><div className="container-x"><Reveal className="section-heading"><div><p className="eyebrow">06 / FIELD NOTES</p><h2>Stories from<br /><em>the road less travelled.</em></h2></div><Link href="/blog" className="text-link">Read the journal <Arrow /></Link></Reveal><div className={posts.length === 1 ? 'journal-single' : 'grid gap-8 md:grid-cols-3'}>{posts.slice(0, 3).map(p => <PostCard key={p.id} item={p} base="/blog" />)}</div></div></section>}
+    <section className="section-space"><div className="container-x faq-grid"><Reveal><p className="eyebrow">A FEW THINGS TO KNOW</p><h2>Curious?<br /><em>You are in good company.</em></h2><Link href="/contact" className="text-link mt-6">Ask us anything <Arrow /></Link></Reveal><Reveal className="faq-list">{FAQ.map(([q, a]) => <details key={q}><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}</Reveal></div></section>
+    <section className="closing-wrap"><div className="closing-cta"><img src="/images/hero-lake.jpg" alt="The lakes of Band-e-Amir" loading="lazy" /><div className="closing-shade" /><Reveal><p className="eyebrow !text-cream">YOUR NEXT CHAPTER</p><h2>Go somewhere<br />that stays <em>with you.</em></h2><Link className="btn-amber" href="/contact">Let's make it happen <Arrow /></Link><p>No ready-made dreams. Let's create yours.</p></Reveal></div></section>
+  </>;
 }

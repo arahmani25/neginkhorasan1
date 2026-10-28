@@ -7,13 +7,15 @@ import { BLOG_POSTS } from '@/lib/seed';
 export const revalidate = 60;
 
 export async function generateMetadata({ params }) {
-  const post = await getPost('blog_posts', params.id, BLOG_POSTS);
+  const {id} = await params;
+  const post = await getPost('blog_posts', id, BLOG_POSTS);
   return { title: post ? post.title : 'Blog' };
 }
 
 export default async function BlogDetail({ params }) {
+  const {id} = await params;
   const [post, all] = await Promise.all([
-    getPost('blog_posts', params.id, BLOG_POSTS),
+    getPost('blog_posts', id, BLOG_POSTS),
     getBlogPosts()
   ]);
   if (!post) notFound();

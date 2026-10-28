@@ -1,146 +1,21 @@
 import Link from 'next/link';
-import { utils } from '@/lib/data';
-
-export function SectionHead({ eyebrow, title, sub, center = true }) {
-  return (
-    <div className={`mb-12 max-w-2xl ${center ? 'mx-auto text-center' : ''}`}>
-      {eyebrow && <p className="eyebrow justify-center">{eyebrow}</p>}
-      <h2 className="mt-3 font-display text-3xl font-semibold text-forest md:text-[2.6rem] md:leading-tight">
-        {title}
-      </h2>
-      {sub && <p className="mt-3 leading-relaxed text-ink/60">{sub}</p>}
-    </div>
-  );
+import { utils } from '@/lib/utils';
+import { Arrow, Icon } from './Icons';
+export function SectionHead({eyebrow,title,sub,center=true}) {
+ return <div className={`mb-12 max-w-2xl ${center?'mx-auto text-center':''}`}>{eyebrow&&<p className="eyebrow">{eyebrow}</p>}<h2 className="mt-4 text-3xl font-normal tracking-tight text-forest md:text-5xl">{title}</h2>{sub&&<p className="mt-4 text-sm leading-relaxed text-ink/60">{sub}</p>}</div>;
 }
-
-export function PackageCard({ p }) {
-  return (
-    <Link href={`/packages/${p.id}`} className="card group block">
-      <div className="relative h-64 overflow-hidden">
-        <img
-          src={p.image_path || '/images/gal-1.jpg'}
-          alt={p.name}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/70 via-transparent to-transparent" />
-        <span className="chip absolute left-4 top-4 bg-cream/90 text-forest backdrop-blur-sm">
-          {p.location || 'Afghanistan'}
-        </span>
-        <span className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-          <span>
-            <span className="block font-display text-2xl font-semibold text-cream drop-shadow">
-              {p.name}
-            </span>
-          </span>
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-amber text-forest-deep transition-transform duration-300 group-hover:rotate-45">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17L17 7M9 7h8v8" />
-            </svg>
-          </span>
-        </span>
-      </div>
-      <div className="p-6">
-        <p className="line-clamp-2 text-sm leading-relaxed text-ink/60">{p.description}</p>
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-forest-soft">
-          View & Book
-          <span className="h-px w-8 bg-amber transition-all group-hover:w-12" />
-        </span>
-      </div>
-    </Link>
-  );
+export function PackageCard({p}) {
+ return <Link href={`/packages/${p.id}`} className="package-card"><div className="package-image"><img src={p.image_path||'/images/gal-1.jpg'} alt={p.name} loading="lazy"/><span className="chip">{p.location||'Afghanistan'}</span></div><div className="package-copy"><h3>{p.name}</h3><p>{p.description}</p><div className="package-bottom"><span>LOCALLY LED · PERSONALLY PLANNED</span><strong>Discover <Arrow/></strong></div></div></Link>;
 }
-
-export function DestinationCard({ d }) {
-  return (
-    <Link
-      href={`/packages?destination=${encodeURIComponent(d.title.toLowerCase())}`}
-      className="group relative block h-[400px] overflow-hidden rounded-3xl shadow-lg"
-    >
-      <img
-        src={d.image_path}
-        alt={d.title}
-        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/90 via-forest-deep/15 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-amber-light">{d.subtitle}</p>
-        <h3 className="mt-1 font-display text-3xl font-semibold text-cream">{d.title}</h3>
-        <p className="mt-1 text-sm text-cream/75">{d.caption}</p>
-      </div>
-    </Link>
-  );
+export function DestinationCard({d,index=0}) {
+ return <Link href={`/packages?destination=${encodeURIComponent(d.title.toLowerCase())}`} className="destination-card"><img src={d.image_path||'/images/gal-1.jpg'} alt={d.title} loading="lazy"/><span className="destination-index">0{index+1} / EXPLORE</span><div className="destination-info"><small>{d.subtitle||'AFGHANISTAN'}</small><h3>{d.title}</h3><p>{d.caption}</p><span className="destination-arrow"><Arrow/></span></div></Link>;
 }
-
-export function PostCard({ item, base }) {
-  return (
-    <Link href={`${base}/${item.id}`} className="card group block">
-      <div className="relative h-52 overflow-hidden">
-        <img
-          src={item.image_path || '/images/gal-1.jpg'}
-          alt={item.title}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
-      </div>
-      <div className="p-6">
-        <p className="text-xs text-ink/50">
-          {item.author || 'Admin'} · {utils.date(item.created_at)}
-        </p>
-        <h3 className="mt-2 font-display text-lg font-semibold leading-snug text-forest transition group-hover:text-forest-soft">
-          {item.title}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-ink/60">{utils.excerpt(item.content, 130)}</p>
-      </div>
-    </Link>
-  );
+export function PostCard({item,base}) {
+ return <Link href={`${base}/${item.id}`} className="card group block h-full"><div className="h-56 overflow-hidden"><img src={item.image_path||'/images/gal-1.jpg'} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy"/></div><div className="p-6"><p className="text-[12px] uppercase tracking-widest text-ink/55">{utils.date(item.created_at)} · {item.author||'Our team'}</p><h3 className="mt-3 text-xl font-normal leading-snug tracking-tight text-forest">{item.title}</h3><p className="mt-3 text-base leading-relaxed text-ink/60">{utils.excerpt(item.content,125)}</p><span className="text-link">Read the story <Arrow/></span></div></Link>;
 }
-
-export function ServiceCard({ s }) {
-  return (
-    <div className="card group">
-      <div className="relative h-56 overflow-hidden">
-        <img
-          src={s.image_path || '/images/gal-1.jpg'}
-          alt={s.title}
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
-      </div>
-      <div className="p-6">
-        <h3 className="font-display text-xl font-semibold text-forest">{s.title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-ink/60">{s.text}</p>
-        <Link href="/contact" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-forest-soft">
-          Contact us
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
-      </div>
-    </div>
-  );
+export function ServiceCard({s}) {
+ return <div className="card group h-full"><div className="h-56 overflow-hidden"><img src={s.image_path||'/images/gal-1.jpg'} alt={s.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy"/></div><div className="p-6"><h3 className="text-xl tracking-tight text-forest">{s.title}</h3><p className="mt-3 text-sm leading-relaxed text-ink/60">{s.text}</p><Link href="/contact" className="text-link">Make it your experience <Arrow/></Link></div></div>;
 }
-
-export function PageHero({ eyebrow, title, sub, children }) {
-  return (
-    <section className="relative overflow-hidden bg-forest pb-16 pt-40 text-cream md:pb-20">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 30%, #EAC06B 0, transparent 40%), radial-gradient(circle at 85% 70%, #EAC06B 0, transparent 35%)'
-        }}
-      />
-      <div className="container-x relative">
-        {eyebrow && <p className="eyebrow !text-amber-light">{eyebrow}</p>}
-        <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-tight md:text-[3.4rem] md:leading-[1.08]">
-          {title}
-        </h1>
-        {sub && <p className="mt-4 max-w-xl text-cream/75">{sub}</p>}
-        {children}
-      </div>
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber via-amber-light to-amber" />
-    </section>
-  );
+export function PageHero({eyebrow,title,sub,children}) {
+ return <section className="page-hero"><div className="container-x relative"><div className="page-breadcrumb"><Link href="/">Home</Link><span>/</span><span>{title}</span></div>{eyebrow&&<p className="eyebrow">{eyebrow}</p>}<h1>{title}</h1>{sub&&<p className="mt-5">{sub}</p>}{children}</div></section>;
 }

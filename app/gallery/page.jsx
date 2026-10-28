@@ -10,8 +10,8 @@ export default async function GalleryPage() {
   return (
     <>
       <PageHero
-        eyebrow="Book your tour packages now"
-        title="Gallery"
+        eyebrow="Moments from the road"
+        title="A thousand little stories."
         sub="Photos and films from our journeys across Afghanistan."
       />
       <GalleryClient gallery={gallery} />

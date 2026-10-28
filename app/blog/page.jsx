@@ -8,7 +8,7 @@ export default async function BlogPage() {
   const posts = await getBlogPosts();
   return (
     <>
-      <PageHero eyebrow="Stories" title="Blog" sub="Stories, tips and updates from Afghan Echoes." />
+      <PageHero eyebrow="Stories" title="Field notes." sub="Stories, perspectives, and inspiration from the road less travelled." />
       <section className="py-16">
         <div className="container-x">
           {posts.length ? (
