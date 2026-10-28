@@ -9,13 +9,13 @@ test('public pages and local image assets load',async({page,request})=>{
  }
  expect(errors).toEqual([]);
 });
-test('hero controls, destination search, and FAQ work',async({page})=>{
+test('stable hero, destination search, and FAQ work',async({page})=>{
  await page.goto('/');
  await expect(page.getByAltText('Negin Khorasan — Afghanistan DMC & Tourism').first()).toHaveAttribute('src','/brand/logo.png');
- await page.getByRole('button',{name:'Pause slideshow'}).click();
- await page.getByRole('button',{name:'Show Herat · The Pearl of Khorasan'}).click();
- await expect(page.locator('.hero-location')).toContainText('Herat');
- await page.locator('.journey-search select').selectOption('bamyan');
+ const hero=page.getByRole('region',{name:'Discover Afghanistan'});
+ await expect(hero.locator('img')).toHaveCount(1);
+ await expect(hero.getByRole('heading',{level:1})).toHaveText('Go beyond the ordinary.');
+ await page.getByRole('combobox',{name:'Destination',exact:true}).selectOption('bamyan');
  await page.getByRole('button',{name:'Explore journeys'}).click();
  await expect(page).toHaveURL(/destination=bamyan/);
  await expect(page.locator('.package-card')).toHaveCount(1);
@@ -71,7 +71,6 @@ test('mobile navigation and layout fit small screens',async({page})=>{
 
 test('desktop and mobile design screenshots',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});await page.goto('/');
- await page.getByRole('button',{name:'Pause slideshow'}).click();
  await page.screenshot({path:'artifacts/home-desktop.png'});
  for(let y=0;y<await page.evaluate(()=>document.body.scrollHeight);y+=700){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(60);}
  await page.evaluate(()=>scrollTo(0,0));await page.waitForTimeout(900);

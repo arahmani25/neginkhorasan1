@@ -48,6 +48,6 @@ npm run test:e2e
 Browser checks use Playwright, Microsoft Edge (already installed on this Windows machine), and an isolated local production server. Set PLAYWRIGHT_CHANNEL=chrome to use installed Google Chrome instead. Live database checks require your own Supabase configuration and a staff account. Local browser tests do not submit to a live database.
 
 ## Design
-Cinematic local photography, deep teal, warm orange, restrained typography, staggered scroll reveals, image crossfades, and accessible native accordions. Slideshow controls include pause and manual selection. Reduced-motion preferences disable automatic motion.
+Cinematic local photography, deep teal, saturated orange, readable text, staggered scroll reveals, and accessible native accordions. A large landscape fills the entire hero on every screen, with the heading and actions over a dark gradient. A bright orange journey search follows underneath. Text, cards, and section spacing use smaller phone proportions, while form fields stay at least 16px to avoid focus zoom. The hero grows with its content. Reduced-motion preferences disable decorative motion.
 
 No deployment or live database changes are performed by editing these files.

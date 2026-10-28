@@ -44,10 +44,10 @@ test('phone layouts have readable text, usable inputs, and no horizontal scrolli
   }
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  expect(await page.locator('.hero-description').evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(17);
-  const controls = await page.locator('.hero-controls').boundingBox();
-  const chat = await page.locator('.whatsapp-float').boundingBox();
-  expect(controls.y + controls.height).toBeLessThan(chat.y);
+  const hero = page.getByRole('region', { name: 'Discover Afghanistan' });
+  expect(await hero.getByText('Locally led journeys. Unforgettable places.').evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
+  await expect(page.locator('.whatsapp-float')).toBeHidden();
+  await expect(hero.getByRole('link', { name: 'WhatsApp', exact: true })).toHaveAttribute('href', /^https:\/\/wa.me\/93781608702\?text=/);
   await page.screenshot({ path: 'artifacts/home-mobile-new.png' });
   await page.goto('/contact');
   expect(await page.locator('input[type="email"]').first().evaluate(element => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
