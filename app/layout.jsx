@@ -15,6 +15,15 @@ export const metadata = {
     default: 'Negin Khorasan — Tours & Travel in Afghanistan',
     template: '%s | Negin Khorasan'
   },
+  icons: {
+    icon: [
+      { url: '/brand/favicon-v2.ico', sizes: 'any' },
+      { url: '/brand/favicon-32-v2.png', type: 'image/png', sizes: '32x32' },
+      { url: '/brand/favicon-192-v2.png', type: 'image/png', sizes: '192x192' }
+    ],
+    shortcut: '/brand/favicon-v2.ico',
+    apple: [{ url: '/brand/apple-touch-icon-v2.png', sizes: '180x180', type: 'image/png' }]
+  },
   description:
     'Locally led journeys through Afghanistan. Discover turquoise lakes, ancient cities, and the stories of the Silk Road with Negin Khorasan.'
 };
